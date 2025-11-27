@@ -18,6 +18,13 @@ export class CropComponent {
   }
 
   getCrops() {
-     this.crops = this.cropApi.getCrops()
+    this.cropApi.getCrops().subscribe({
+      next: (res: any) => {
+        this.crops = res.data
+      },
+      error: (err: any) => {
+        console.log(err)
+      }
+    })
   }
 }

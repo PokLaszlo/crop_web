@@ -1,0 +1,24 @@
+<p>crop works!</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Név</th>
+            <th>Típus</th>
+            <th>Fehérjetartalom</th>
+            <th>Termelő</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for(crop of crops; track crop.id) {
+            <tr>
+                <td>{{ crop.id }}</td>
+                <td>{{ crop.name }}</td>
+                <td>{{ crop.type }}</td>
+                <td>{{ crop.proteinContent }}</td>
+                <td>{{ crop.producerId }}</td>
+            </tr>
+        }
+    </tbody>
+</table>

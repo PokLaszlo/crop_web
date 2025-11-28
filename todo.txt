@@ -1,5 +1,3 @@
-TODO: producer komponens CRUD műveletek
 TODO: navigáció
 TODO: home komponens
 TODO: about komponens
-TODO: tájékoztató ablakok Sweetalert2

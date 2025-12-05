@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CropApi } from '../shared/crop-api';
 import { ProducerApi } from '../shared/producer-api';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-crop',
@@ -15,6 +16,7 @@ export class CropComponent {
   producers: any;
   addMode = true;
   cropForm: any;
+  showModal=false;
 
   constructor(
     private cropApi: CropApi,
@@ -59,7 +61,7 @@ export class CropComponent {
     if(this.addMode) {
       this.startCreateCrop()
     } else {
-      this.startUpdateCrop()
+      this.confirm_Animation_Window(this.cropForm.value.id)
     }
   }
   startCreateCrop() {
@@ -67,8 +69,8 @@ export class CropComponent {
     this.cropApi.createCrop(this.cropForm.value).subscribe({
       next: (res: any) => {
         this.getCrops()
-        this.cropForm.reset()
-        console.log(res)
+        this.animatedWindow()
+        this.cancel()
       },
       error: (err: any) => {
         console.log(err)
@@ -76,14 +78,11 @@ export class CropComponent {
     })
   }
   startUpdateCrop() {
-    console.log('Update ...')
-    console.log(this.cropForm.value)
     this.cropApi.updateCrop(this.cropForm.value).subscribe({
       next: (res: any) => {
         this.getCrops()
-        this.cropForm.reset()
-        console.log(res)
-        this.addMode = true
+        this.animatedWindow("Siker","Frissítés sikeres","success")
+        this.cancel()
       },
       error: (err: any) => {
         console.log(err)
@@ -93,6 +92,7 @@ export class CropComponent {
 
   startEditCrop(crop: any) {
     this.addMode = false
+    this.showModal=true
     this.cropForm.patchValue(crop)
   }
 
@@ -100,7 +100,7 @@ export class CropComponent {
     this.cropApi.deleteCrop(id).subscribe({
       next: (res: any) => {
         this.getCrops()
-        console.log(res)
+        this.animatedWindow("Siker","Törlés sikeres","success")
       },
       error: (err: any) => {
         console.log(err)
@@ -109,6 +109,40 @@ export class CropComponent {
   }
   cancel() {
     this.cropForm.reset()
-    this.addMode = true
+    this.addMode=true
+    this.showModal=false
+  }
+  setShowModal(){
+    this.showModal=true
+  }
+  animatedWindow($title:string="Szép munka!",$text:string="Művelet sikeres!",$icon:any="success"){
+    Swal.fire({
+      title: $title,
+      text: $text,
+      icon: $icon,
+      timer:1300
+    });
+  }
+  confirm_Animation_Window($id:number){
+    Swal.fire({
+      title: "Biztos vagy benne?",
+      text: "Nem lehet majd visszatérni ebből!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: this.addMode?"Törlés":"Módosítás",
+      cancelButtonText: "Mégsem",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if(this.addMode){
+          this.startDeleteCrop($id)
+          this.animatedWindow("Szép munka","Törlés sikeres","success");
+        }else{
+          this.startUpdateCrop()
+          this.animatedWindow("Szép munka","Frissítés sikeres","success");
+        }
+      } else if ( result.dismiss === Swal.DismissReason.cancel) {
+        this.animatedWindow("Hiba","Nem sikerült az adott művelet","error");
+      }
+    });
   }
 }

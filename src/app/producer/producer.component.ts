@@ -11,14 +11,13 @@ import Swal from 'sweetalert2';
   templateUrl: './producer.component.html',
   styleUrl: './producer.component.css',
 })
-export class ProducerComponent {
 
+export class ProducerComponent {
   producer:any
   producerForm:any
   addMode=true
-
+  showModal=false;
   constructor(private api:ProducerApi, private builder:FormBuilder){}
-
   ngOnInit(){
     this.getProducers()
     this.producerForm=this.builder.group({
@@ -29,7 +28,6 @@ export class ProducerComponent {
       capacityHectare:[''],
     })
   }
-
   getProducers(){
     this.api.getProducers().subscribe({
       next:(res:any)=>{
@@ -39,9 +37,9 @@ export class ProducerComponent {
       error:(err:any)=>{console.error(err)}
     })
   }
-
   startEdit(producer:any){
     this.addMode=false
+    this.setShowModal()
     this.producerForm.patchValue(producer)
   }
   Operation(){
@@ -53,12 +51,15 @@ export class ProducerComponent {
     }
   }
   startCreate(){
-    console.log("Hozzáadás...")
     this.api.createProducer(this.producerForm.value).subscribe({
       next:(res:any)=>{
-        this.animatedWindow()
-        this.getProducers()
-        this.cancel()
+        if(res.success){
+          this.animatedWindow()
+          this.getProducers()
+          this.cancel()
+        }else{
+          this.animatedWindow("Hiba","Hibás adat hozzáadása","error")
+        }
       },
       error:(err:any)=>{
         this.animatedWindow("Hiba","Nem sikerült a művelet","error")
@@ -67,32 +68,40 @@ export class ProducerComponent {
     })
   }
   startUpdate(){
-    console.log("Frissítés...")
     this.api.updateProducer(this.producerForm.value).subscribe({
       next:(res:any)=>{
-        console.log("Frissítés sikeres")
-        this.getProducers()
-        this.cancel()
+        if(res.success){
+          this.getProducers()
+          this.cancel()
+          this.animatedWindow()
+        }else{
+          this.animatedWindow("Hiba","Nem megfelelő adat","error")
+        }
       },
-      error:(err:any)=>{console.error(err)}
+      error:(err:any)=>{console.error(err);this.animatedWindow("Hiba","Szerver oldali hiba","warning")}
     })
   }
   startDelete($id:number){
-    console.log("Törlés...")
     this.api.deleteProducer($id).subscribe({
       next:(res:any)=>{
-        console.log("Törlés sikeres")
+        if(res.success){
         this.getProducers()
         this.cancel()
+        }else{
+          this.animatedWindow("Hiba","Nem sikerült a törlés","error")
+        }
       },
-      error:(err:any)=>{console.error(err)}
+      error:(err:any)=>{console.error(err);this.animatedWindow("Hiba","Szerver oldali hiba","error")}
     })
   }
   cancel(){
     this.addMode=true
     this.producerForm.reset()
+    this.showModal=false
   }
-
+  setShowModal(){
+    this.showModal=true
+  }
   animatedWindow($title:string="Szép munka!",$text:string="Művelet sikeres!",$icon:any="success"){
     Swal.fire({
       title: $title,
@@ -102,34 +111,23 @@ export class ProducerComponent {
     });
   }
   confirm_Animation_Window($id:number){
-    const swalWithBootstrapButtons = Swal.mixin({
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-danger"
-      },
-      buttonsStyling: false
-    });
-    swalWithBootstrapButtons.fire({
+    Swal.fire({
       title: "Biztos vagy benne?",
       text: "Nem lehet majd visszatérni ebből!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: this.addMode?"Törlés":"Módosítás",
       cancelButtonText: "Mégsem",
-      reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
         if(this.addMode){
           this.startDelete($id)
-          this.animatedWindow("Szép munka","Törlés sikeres","success");
         }else{
           this.startUpdate()
-          this.animatedWindow("Szép munka","Frissítés sikeres","success");
         }
       } else if ( result.dismiss === Swal.DismissReason.cancel) {
-        this.animatedWindow("Hiba","Nem sikerült az adott művelet","error");
+        this.animatedWindow("Hiba","Adott művelet elutasítva","error");
       }
     });
-      }
-
+  }
 }

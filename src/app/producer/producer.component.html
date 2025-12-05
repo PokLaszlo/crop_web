@@ -1,7 +1,7 @@
-<p>producer works!</p>
+<h2>Termelők</h2>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+<button type="button" class="btn btn-primary mb-3" (click)="setShowModal()">
   Hozzáadás
 </button>
 
@@ -20,15 +20,13 @@
     <tbody class="table table-warning">
         @for(pr of producer;track pr.id){
             <tr>
-                <td>{{pr.id}}</td>
-                <td>{{pr.name}}</td>
-                <td>{{pr.country}}</td>
-                <td>{{pr.yearOfFoundation}}</td>
-                <td>{{pr.capacityHectare}}</td>
+                <td data-column="Id">{{pr.id}}</td>
+                <td data-column="Név">{{pr.name}}</td>
+                <td data-column="Ország">{{pr.country}}</td>
+                <td data-column="Alapítás">{{pr.yearOfFoundation}}</td>
+                <td data-column="Kapacitás">{{pr.capacityHectare}}</td>
                 <td>
-                    <button type="button" class="btn btn-warning" 
-                    data-bs-toggle="modal" data-bs-target="#exampleModal" 
-                    (click)="startEdit(pr)">Módosítás</button>
+                    <button type="button" class="btn btn-warning btn-sm" (click)="startEdit(pr)">Módosítás</button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger" (click)="confirm_Animation_Window(pr.id)">Törlés</button>
@@ -39,9 +37,9 @@
 </table>
 
 
-
+@if(showModal){
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal" style="display: block;">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -88,3 +86,5 @@
     </div>
   </div>
 </div>
+<div class="modal-backdrop fade show"></div>
+}

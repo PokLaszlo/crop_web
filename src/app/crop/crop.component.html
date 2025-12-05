@@ -1,10 +1,9 @@
 <h2>Termények</h2>
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary mb-2" 
-data-bs-toggle="modal" data-bs-target="#operatorModal">
+<button type="button" class="btn btn-primary mb-2" (click)="setShowModal()">
     Hozzáadás
-  </button>
+</button>
 
 <table class="table table-striped table-info">
     <thead>
@@ -21,22 +20,18 @@ data-bs-toggle="modal" data-bs-target="#operatorModal">
     <tbody>
         @for(crop of crops; track crop.id) {
             <tr>
-                <td>{{ crop.id }}</td>
-                <td>{{ crop.name }}</td>
-                <td>{{ crop.type }}</td>
-                <td>{{ crop.proteinContent }}</td>
-                <td>{{ crop.producerId }}</td>
+                <td data-column="Id">{{ crop.id }}</td>
+                <td data-column="Név">{{ crop.name }}</td>
+                <td data-column="Típus">{{ crop.type }}</td>
+                <td data-column="Fehérjetartalom">{{ crop.proteinContent }}</td>
+                <td data-column="Termelő Id">{{ crop.producerId }}</td>
                 <td>
-                    <button class="btn btn-primary" 
-                    data-bs-toggle="modal" data-bs-target="#operatorModal"
-                    (click)="startEditCrop(crop)"
-                    >
+                    <button class="btn btn-warning" (click)="startEditCrop(crop)">
                         Módosítás
                     </button>
                 </td>
                 <td>
-                    <button class="btn btn-danger"
-                    (click)="startDeleteCrop(crop.id)">
+                    <button class="btn btn-danger" (click)="confirm_Animation_Window(crop.id)">
                         Törlés
                     </button>
                 </td>
@@ -47,30 +42,26 @@ data-bs-toggle="modal" data-bs-target="#operatorModal">
 
 
 
-  
+@if(showModal){
   <!-- Modal -->
-  <div class="modal fade" id="operatorModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal" style="display: block;">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">
-            @if(addMode) {
-                Hozzáadás
-            } @else {
-                Módosítás
-            }
+            {{addMode?"Hozzáadás":"Módosítás"}}
           </h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" (click)="cancel()"></button>
         </div>
         <div class="modal-body">
-          
-
             <form id="cropForm" [formGroup]="cropForm" (ngSubmit)="save()">
-                <div>
-                    <label for="id" class="form-label">Id</label>
-                    <input type="text" class="form-control"
-                    id="id" formControlName="id" readonly>
-                </div>
+                @if(!addMode){
+                    <div>
+                        <label for="id" class="form-label">Id</label>
+                        <input type="text" class="form-control"
+                        id="id" formControlName="id" readonly>
+                    </div>
+                }
                 <div>
                     <label for="name" class="form-label">Név</label>
                     <input type="text" class="form-control"
@@ -95,27 +86,25 @@ data-bs-toggle="modal" data-bs-target="#operatorModal">
                             <option value="{{ producer.id }}">{{ producer.name }}</option>
                         }
                     </select>
-
-
-
                 </div>
-
-
             </form>
-
-
-
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" 
-            data-bs-dismiss="modal"
-            (click)="cancel()">
-            Bezárás
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="cancel()">
+                Bezárás
             </button>
-          <button type="submit" class="btn btn-primary"
-          form="cropForm"
-          >Mentés</button>
+            @if(addMode){
+            <button type="submit" class="btn btn-primary"form="cropForm">
+                Mentés
+            </button>
+            }@else{
+            <button type="submit" class="btn btn-warning"form="cropForm">
+                Módosítás
+            </button>
+            }
         </div>
       </div>
     </div>
   </div>
+  <div class="div modal-backdrop fade show"></div>
+}
